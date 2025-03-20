@@ -1,0 +1,45 @@
+# 编译输出
+/bin/
+/dist/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# 测试覆盖率文件
+*.out
+*.test
+coverage.txt
+
+# IDE文件
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+*~
+
+# 依赖目录
+/vendor/
+
+# 本地配置
+*.local.yaml
+*.local.yml
+*.env.local
+
+# 日志文件
+/logs/
+*.log
+
+# Go模块缓存
+go.sum
+
+# 临时文件
+/tmp/
+.tmp/
+
+# 二进制构建产物
+/build/
+main
+ky-admin 

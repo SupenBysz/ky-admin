@@ -1,0 +1,102 @@
+# KY-Admin 配置文件
+
+# 服务器配置
+server:
+    # 监听地址
+    host: '0.0.0.0'
+    # 监听端口
+    port: 8080
+    # 读取超时（秒）
+    read_timeout: 10
+    # 写入超时（秒）
+    write_timeout: 10
+    # 优雅关闭超时（秒）
+    shutdown_timeout: 5
+    # API前缀
+    api_prefix: '/api/v1'
+
+# 数据库配置
+database:
+    driver: 'mysql'
+    host: '127.0.0.1'
+    port: 3306
+    username: 'root'
+    password: 'password'
+    database: 'ky_admin'
+    charset: 'utf8mb4'
+    max_idle_conns: 10
+    max_open_conns: 100
+    conn_max_lifetime: 3600
+    log_level: 'info' # debug, info, warn, error, silent
+    # 注意：虽然使用的是MariaDB，但驱动仍使用mysql，因为GORM使用mysql驱动连接MariaDB
+
+# 日志配置
+log:
+    # 日志级别：debug, info, warn, error, fatal
+    level: 'debug'
+    # 日志格式：console, json
+    format: 'console'
+    # 日志输出：stdout, file
+    output: 'stdout'
+    # 日志文件路径（当output为file时有效）
+    filepath: './logs/app.log'
+    # 是否显示行号
+    show_line: true
+    # 是否显示调用函数
+    show_func: true
+    # 日志文件最大大小，单位MB
+    max_size: 100
+    # 保留旧日志文件的最大数量
+    max_backups: 10
+    # 保留旧日志文件的最大天数
+    max_age: 30
+    # 是否压缩旧日志文件
+    compress: true
+
+# CORS配置
+cors:
+    # 是否启用CORS
+    enabled: true
+    # 允许的源
+    allow_origins:
+        - '*'
+    # 允许的HTTP方法
+    allow_methods:
+        - 'GET'
+        - 'POST'
+        - 'PUT'
+        - 'DELETE'
+        - 'OPTIONS'
+    # 允许的HTTP头
+    allow_headers:
+        - 'Authorization'
+        - 'Content-Type'
+    # 是否允许携带凭证
+    allow_credentials: true
+    # 预检请求的有效期（秒）
+    max_age: 86400
+
+# JWT配置
+jwt:
+    # 密钥
+    secret: 'your-secret-key-change-me-in-production'
+    # 过期时间（分钟）
+    expiration: 60
+    # 刷新令牌过期时间（小时）
+    refresh_expiration: 24
+    # 签发者
+    issuer: 'ky-admin'
+
+# 缓存配置
+cache:
+    # 缓存类型：memory, redis
+    type: 'memory'
+    # 默认过期时间（秒）
+    default_expiration: 3600
+    # Redis配置（当type为redis时有效）
+    redis:
+        host: '127.0.0.1'
+        port: 6379
+        password: ''
+        database: 0
+        pool_size: 10
