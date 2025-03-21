@@ -1,0 +1,111 @@
+version: '3.8'
+
+services:
+  ky-admin:
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
+    container_name: ky-admin
+    restart: always
+    depends_on:
+      - mysql
+      - redis
+    ports:
+      - "8080:8080"
+    volumes:
+      - ky_admin_data:/app/data
+      - ky_admin_logs:/app/logs
+      - ky_admin_configs:/app/configs
+    environment:
+      - APP_ENV=production
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USER=ky_admin
+      - DB_PASSWORD=${DB_PASSWORD:-defaultpassword}
+      - DB_NAME=ky_admin
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+    networks:
+      - ky-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O-", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  mysql:
+    image: mysql:8.0
+    container_name: ky-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ky_admin
+      MYSQL_USER: ky_admin
+      MYSQL_PASSWORD: ${DB_PASSWORD:-defaultpassword}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init-scripts/mysql:/docker-entrypoint-initdb.d
+    networks:
+      - ky-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-rootpassword}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+  
+  redis:
+    image: redis:7.0-alpine
+    container_name: ky-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - ky-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  nginx:
+    image: nginx:1.22-alpine
+    container_name: ky-nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/ssl:/etc/nginx/ssl
+      - nginx_logs:/var/log/nginx
+      - nginx_www:/var/www/html
+    depends_on:
+      - ky-admin
+    networks:
+      - ky-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O-", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  ky_admin_data:
+  ky_admin_logs:
+  ky_admin_configs:
+  mysql_data:
+  redis_data:
+  nginx_logs:
+  nginx_www:
+
+networks:
+  ky-network:
+    driver: bridge 

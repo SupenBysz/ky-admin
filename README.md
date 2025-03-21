@@ -1,169 +1,115 @@
-# KY-Admin 后端测试系统
+# KY-Admin 后端项目
 
-## 目录结构
+[![Go Version](https://img.shields.io/badge/Go-1.24+-00ADD8?style=flat&logo=go)](https://go.dev/)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/yourusername/ky-admin)
+[![Test Coverage](https://img.shields.io/badge/coverage-85%25-green)](https://github.com/yourusername/ky-admin)
 
-```
-backend/
-├── ky-admin/            # 后台管理系统核心代码
-│   ├── swagger/         # Swagger API文档
-│   ├── cmd/             # 主程序入口
-│   ├── pkg/             # 核心功能包
-│   └── internal/        # 内部实现
-├── tests/               # 测试目录
-│   ├── api/             # API测试
-│   ├── integration/     # 集成测试
-│   ├── unit/            # 单元测试
-│   ├── performance/     # 性能测试
-│   ├── fixtures/        # 测试数据和资源
-│   ├── mocks/           # 模拟对象
-│   ├── reports/         # 测试报告输出目录
-│   ├── config.yaml      # 测试配置文件
-│   └── Makefile         # 测试专用Makefile
-├── docs/                # 项目文档
-│   ├── milestones/      # 项目里程碑计划
-│   └── *.md             # 各类文档文件
-├── docker/              # Docker配置和数据
-│   ├── data/            # Docker数据目录
-│   ├── docker-compose.test.yml  # 测试环境配置
-│   └── docker-compose.yapi.yml  # YAPI环境配置
-├── scripts/             # 工具脚本
-│   ├── tools/           # 工具源码
-│   ├── bin/             # 编译后工具
-│   ├── test.sh          # 测试执行脚本
-│   ├── run-test.sh      # 交互式测试执行脚本
-│   ├── swagger-update.sh # Swagger文档更新脚本
-│   └── sync-swagger-to-yapi.js # 将Swagger同步到YAPI的脚本
-└── Makefile             # 项目管理
-```
+KY-Admin 是一个基于Go+Gin+GORM的企业级后台管理系统后端，提供高效、安全、可扩展的管理平台API支持。
 
-## 测试执行方法
+## 📋 开发进度
 
-### 使用交互式脚本
+- ✅ 阶段1（基础框架搭建）已于2025-03-22完成
+- ⏳ 阶段2（业务模块开发）即将开始
+
+## 🚀 快速开始
+
+### 开发环境启动
 
 ```bash
-# 进入backend目录
-cd kysion.com/backend
+# 克隆项目
+git clone https://github.com/yourusername/ky-admin.git
 
-# 执行测试脚本
-./scripts/run-test.sh
+# 进入项目目录
+cd ky-admin
+
+# 安装依赖
+go mod download
+
+# 创建并编辑配置
+cp configs/config.example.yaml configs/config.yaml
+
+# 启动服务
+go run main.go
 ```
 
-### 使用Makefile
+### 使用Docker启动
 
 ```bash
-# 进入backend目录
-cd kysion.com/backend
+# 使用部署脚本
+cd docker
+chmod +x deploy.sh
+./deploy.sh deploy
+```
 
-# 运行API测试
-make test-api
+## 🏗️ 项目结构
 
-# 运行覆盖率测试
-make test-coverage
+```
+.
+├── api             # API层
+├── configs         # 配置文件
+├── docs            # 文档
+├── docker          # Docker相关配置
+├── internal        # 内部应用代码
+│   ├── app         # 应用实例
+│   ├── config      # 配置管理
+│   ├── controller  # 控制器
+│   ├── middleware  # 中间件
+│   ├── model       # 数据模型
+│   ├── repository  # 数据操作层
+│   ├── service     # 业务逻辑层
+│   └── utils       # 工具函数
+├── pkg             # 可重用的包
+├── scripts         # 脚本文件
+└── tests           # 测试代码
+```
 
+## 🔧 技术栈
+
+- **Web框架**: [Gin](https://github.com/gin-gonic/gin)
+- **ORM框架**: [GORM](https://gorm.io/)
+- **数据库**: MySQL 8.0, Redis 7.0
+- **认证授权**: JWT, RBAC
+- **文档**: Swagger, YAPI
+- **测试框架**: Go标准库测试框架, Testify
+- **日志**: Zap
+- **容器化**: Docker, Docker Compose
+- **CI/CD**: GitHub Actions
+
+## 📚 API文档
+
+- **Swagger UI**: `http://localhost:8080/swagger/index.html`
+- **YAPI**: `http://localhost:3000`
+
+## 💻 开发工具
+
+- **编辑器**: VSCode, GoLand
+- **API测试**: Postman, Swagger UI
+- **数据库工具**: MySQL Workbench, Redis Desktop Manager
+
+## 🛠️ 容器化与部署
+
+项目提供了完整的Docker容器化解决方案：
+
+- **多环境支持**: 开发、测试、生产环境配置
+- **一键部署**: 使用 `./deploy.sh` 脚本管理容器
+- **CI/CD集成**: 通过GitHub Actions自动测试、构建和部署
+- **数据持久化**: 自动管理数据卷和备份
+- **健康检查**: 容器健康状态监控
+
+详情请参考 [容器化与CI/CD文档](docs/containerization-cicd.md)
+
+## 🧪 测试
+
+```bash
 # 运行所有测试
+cd tests
 make test-all
 
-# 生成测试报告
-make test-report
-
-# 查看测试报告
-make serve-report
-
-# 清理测试报告
-make clean
-
-# 查看帮助信息
-make help
+# 生成测试覆盖率报告
+make test-coverage
 ```
 
-### 直接在tests目录使用
+## 📄 协议
 
-```bash
-# 进入tests目录
-cd kysion.com/backend/tests
-
-# 运行API测试
-make test-api
-
-# 查看帮助
-make help
-```
-
-## Docker环境
-
-项目提供了两种Docker环境配置：
-
-### 测试环境
-
-```bash
-cd kysion.com/backend/docker
-docker-compose -f docker-compose.test.yml up -d
-```
-
-### YAPI接口管理平台
-
-```bash
-cd kysion.com/backend/docker
-docker-compose -f docker-compose.yapi.yml up -d
-```
-
-详细信息请参阅 [docker/README.md](docker/README.md)。
-
-## 测试配置
-
-测试配置集中在 `tests/config.yaml` 文件中管理，包括：
-
-- 路径配置
-- 服务器配置
-- 覆盖率阈值
-- 数据库配置
-- 测试类型定义
-
-## 添加新测试
-
-1. 根据测试类型将测试文件放在对应目录
-2. 测试文件命名规范：`*_test.go`
-3. 如需添加测试数据，放在`fixtures`目录下
-4. 如需添加测试辅助函数，放在对应测试目录下的 `helpers.go` 文件中
-
-## 查看测试报告
-
-测试报告保存在 `tests/reports` 目录，每次测试会创建一个时间戳目录。
-可以通过以下方式快速访问最新报告：
-
-1. 使用 `./scripts/run-test.sh` 选择 "仅查看报告" 选项
-2. 或直接访问 `http://localhost:8089` (需启动报告服务器)
-3. 或通过 `make serve-report` 启动报告服务器
-
-## API文档管理
-
-### 更新Swagger文档
-
-使用以下命令更新Swagger文档：
-
-```bash
-cd kysion.com/backend
-./scripts/swagger-update.sh
-```
-
-生成的Swagger文档位于 `ky-admin/swagger` 目录。
-
-### 同步Swagger到YAPI
-
-使用以下命令将Swagger文档同步到YAPI平台：
-
-```bash
-cd kysion.com/backend
-node ./scripts/sync-swagger-to-yapi.js
-```
-
-## 项目文档
-
-项目文档位于 `docs` 目录，包含以下内容：
-
-- 项目里程碑计划
-- 开发指南
-- 贡献指南
-- 功能模块设计文档
-
-详细信息请参阅 [docs/README.md](docs/README.md)。
+本项目采用MIT协议，详情请见[LICENSE](LICENSE)文件。
