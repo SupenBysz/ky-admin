@@ -9,27 +9,25 @@ services:
     restart: always
     environment:
       - MONGO_INITDB_DATABASE=yapi
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=admin123
     networks:
       - yapi-network
 
   yapi:
-    image: silsuer/yapi:latest
+    image: jayfong/yapi:latest
     container_name: yapi
     depends_on:
       - mongodb
     ports:
       - "3000:3000"
     environment:
-      - YAPI_DB_SERVERNAME=mongodb
-      - YAPI_DB_PORT=27017
-      - YAPI_DB_DATABASE=yapi
-      - YAPI_DB_USER=admin
-      - YAPI_DB_PASS=admin123
       - YAPI_ADMIN_ACCOUNT=admin@kysion.com
       - YAPI_ADMIN_PASSWORD=ky-admin123
       - YAPI_CLOSE_REGISTER=true
+      - YAPI_DB_SERVERNAME=mongodb
+      - YAPI_DB_PORT=27017
+      - YAPI_DB_DATABASE=yapi
+      - YAPI_MAIL_ENABLE=false
+      - YAPI_LDAP_LOGIN_ENABLE=false
     restart: always
     networks:
       - yapi-network

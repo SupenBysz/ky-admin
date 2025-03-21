@@ -19,7 +19,7 @@ const config = {
   yapiBaseUrl: process.env.YAPI_URL || 'http://localhost:3000',
   
   // YAPI项目的token，可在项目设置中获取
-  yapiToken: process.env.YAPI_TOKEN || 'test-token-for-demo',
+  yapiToken: process.env.YAPI_TOKEN || '932165370c9bb310570efda1ce1606bd40220b158d31c1db6efa553f410fb2c7',
   
   // Swagger文档路径
   swaggerPath: process.env.SWAGGER_PATH || path.join(__dirname, '../docs/swagger/swagger.json'),
