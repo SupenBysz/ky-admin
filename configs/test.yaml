@@ -1,0 +1,82 @@
+app:
+    name: 'ky-admin'
+    version: '1.0.0'
+    port: 8081
+    timeout: 30s
+    mode: 'test'
+    allow_origins:
+        - 'http://localhost:8080'
+        - 'http://127.0.0.1:8080'
+    debug: true
+    api:
+        prefix: '/api'
+        health_check:
+            enabled: true
+            livez_path: '/livez'
+            readyz_path: '/readyz'
+            health_path: '/health'
+
+log:
+    level: 'debug'
+    format: 'console'
+    time_format: '2006-01-02 15:04:05'
+    caller: true
+    filename: 'logs/ky-admin-test.log'
+    max_size: 10
+    max_age: 7
+    max_backups: 3
+    compress: false
+
+database:
+    host: 'localhost'
+    port: 3306
+    username: 'test_user'
+    password: 'test_password'
+    name: 'ky_admin_test'
+    charset: 'utf8mb4'
+    parse_time: true
+    loc: 'Local'
+    max_connections: 10
+    max_idle_connections: 5
+    conn_max_lifetime: '1h'
+    conn_max_idle_time: '30m'
+    log_level: 'debug'
+    slow_threshold: '200ms'
+
+jwt:
+    secret: 'test-jwt-secret-key-1234567890'
+    issuer: 'ky-admin-test'
+    expiration: '24h'
+    refresh_expiration: '168h'
+
+cors:
+    allow_origins:
+        - '*'
+    allow_methods:
+        - 'GET'
+        - 'POST'
+        - 'PUT'
+        - 'DELETE'
+        - 'OPTIONS'
+    allow_headers:
+        - 'Origin'
+        - 'Content-Type'
+        - 'Authorization'
+    expose_headers:
+        - 'Content-Length'
+    allow_credentials: true
+    max_age: 86400
+
+redis:
+    host: 'localhost'
+    port: 6379
+    password: ''
+    db: 1
+    max_retries: 3
+    timeout: '5s'
+
+rate_limit:
+    enabled: false
+    rate: 100
+    burst: 50
+    type: 'ip'

@@ -265,3 +265,14 @@ type Server struct {
 	WriteTimeout    int    `mapstructure:"write_timeout"`
 	ShutdownTimeout int    `mapstructure:"shutdown_timeout"`
 }
+
+// GetFloat64WithDefault 获取浮点数配置，支持默认值
+func (c *Config) GetFloat64WithDefault(key string, defaultValue float64) float64 {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+
+	if !c.viper.IsSet(key) {
+		return defaultValue
+	}
+	return c.viper.GetFloat64(key)
+}
