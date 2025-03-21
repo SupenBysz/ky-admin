@@ -18,11 +18,11 @@ server:
 # 数据库配置
 database:
     driver: 'mysql'
-    host: '127.0.0.1'
+    host: '10.68.73.213'
     port: 3306
-    username: 'dev_user'
-    password: 'dev_password'
-    database: 'ky_admin_dev'
+    username: 'kysion_dev'
+    password: 'TrY6eK8Bt28KwYii'
+    database: 'kysiondb_dev'
     charset: 'utf8mb4'
     max_idle_conns: 10
     max_open_conns: 100
@@ -39,7 +39,7 @@ log:
     # 日志输出：stdout, file
     output: 'stdout'
     # 日志文件路径（当output为file时有效）
-    filepath: './logs/app.log'
+    filepath: '../../artifacts/logs/app.log'
     # 是否显示行号
     show_line: true
     # 是否显示调用函数

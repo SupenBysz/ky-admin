@@ -1,13 +1,11 @@
 # 编译输出
 /bin/
 /dist/
-*.exe
-*.exe~
-*.dll
-*.so
-*.dylib
+/build/
+/artifacts/
+../artifacts/
 
-# 测试覆盖率文件
+# 测试文件
 *.out
 *.test
 coverage.txt
@@ -19,14 +17,11 @@ coverage.txt
 .DS_Store
 *.swp
 *.swo
-.DS_Store
 *~
 
 # 依赖目录
 /vendor/
 /node_modules/
-/docs/swagger/
-/scripts/data/
 
 # 本地配置
 *.local.yaml
@@ -37,14 +32,13 @@ coverage.txt
 /logs/
 *.log
 
-# Go模块缓存
-go.sum
-
 # 临时文件
 /tmp/
 .tmp/
 
-# 二进制构建产物
-/build/
-main
-ky-admin 
+# 测试报告
+/tests/reports/*/
+/tests/reports/latest/
+
+# Go模块缓存
+go.sum 

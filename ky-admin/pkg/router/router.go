@@ -5,8 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	internalAPI "github.com/SupenBysz/ky-admin/internal/api"
-	"github.com/SupenBysz/ky-admin/pkg/api"
+	"github.com/SupenBysz/ky-admin/internal/pkg/response"
 	"github.com/SupenBysz/ky-admin/pkg/config"
 	"github.com/SupenBysz/ky-admin/pkg/middleware"
 	"github.com/gin-gonic/gin"
@@ -33,14 +32,16 @@ func SetupRouter(cfg *config.Config) *gin.Engine {
 	// 配置Swagger路由
 	SetupSwaggerRoutes(r)
 
-	// 初始化控制器
-	healthController := internalAPI.NewHealthController()
-	userController := internalAPI.NewUserController()
-
 	// 健康检查
-	r.GET("/health", healthController.Health)
-	r.GET("/livez", healthController.LivenessProbe)
-	r.GET("/readyz", healthController.ReadinessProbe)
+	r.GET("/health", func(c *gin.Context) {
+		response.Success(c, gin.H{"status": "ok"})
+	})
+	r.GET("/livez", func(c *gin.Context) {
+		response.Success(c, gin.H{"status": "alive"})
+	})
+	r.GET("/readyz", func(c *gin.Context) {
+		response.Success(c, gin.H{"status": "ready"})
+	})
 
 	// API路由组
 	apiGroup := r.Group("/api")
@@ -48,20 +49,24 @@ func SetupRouter(cfg *config.Config) *gin.Engine {
 		// 认证相关
 		authGroup := apiGroup.Group("/auth")
 		{
-			authGroup.POST("/login", userController.Login)
+			authGroup.POST("/login", func(c *gin.Context) {
+				response.Success(c, gin.H{"message": "登录接口待实现"})
+			})
 		}
 
 		// 用户相关API
 		userGroup := apiGroup.Group("/users")
 		{
-			userGroup.GET("", userController.GetUsers)
+			userGroup.GET("", func(c *gin.Context) {
+				response.Success(c, gin.H{"users": []interface{}{}})
+			})
 		}
 
 		// 角色相关API
 		roleGroup := apiGroup.Group("/roles")
 		{
 			roleGroup.GET("", func(c *gin.Context) {
-				api.Success(c, []interface{}{})
+				response.Success(c, []interface{}{})
 			})
 		}
 
@@ -69,14 +74,14 @@ func SetupRouter(cfg *config.Config) *gin.Engine {
 		permGroup := apiGroup.Group("/permissions")
 		{
 			permGroup.GET("", func(c *gin.Context) {
-				api.Success(c, []interface{}{})
+				response.Success(c, []interface{}{})
 			})
 		}
 	}
 
 	// 404处理
 	r.NoRoute(func(c *gin.Context) {
-		api.NotFoundError(c, "请求的资源不存在")
+		response.NotFound(c, "请求的资源不存在")
 	})
 
 	return r

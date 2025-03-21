@@ -20,16 +20,28 @@ if ! command -v swag &> /dev/null; then
     export PATH=$PATH:$(go env GOPATH)/bin
 fi
 
-# 检查axios是否已安装
-if [ ! -d "./node_modules/axios" ]; then
-    echo -e "${YELLOW}axios未安装，正在安装...${NC}"
-    npm install axios --no-package-lock
-fi
-
 # 脚本目录
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # 项目根目录
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
+# Node.js依赖目录
+NODE_DIR="$SCRIPT_DIR/node"
+
+# 创建Node.js依赖目录（如果不存在）
+mkdir -p "$NODE_DIR"
+
+# 检查axios是否已安装
+if [ ! -d "$NODE_DIR/node_modules/axios" ]; then
+    echo -e "${YELLOW}axios未安装，正在安装...${NC}"
+    # 切换到Node.js依赖目录并安装axios
+    cd "$NODE_DIR"
+    if [ ! -f "package.json" ]; then
+        echo '{"name":"swagger-sync","private":true}' > package.json
+    fi
+    npm install axios --no-package-lock
+    cd "$PROJECT_DIR"
+fi
+
 # Swagger输出目录
 SWAGGER_OUTPUT_DIR="$PROJECT_DIR/ky-admin/swagger"
 
@@ -40,7 +52,8 @@ swag init -g cmd/main.go -o "$SWAGGER_OUTPUT_DIR"
 # 判断是否需要同步到YAPI
 if [ -n "$SYNC_TO_YAPI" ] && [ "$SYNC_TO_YAPI" = "true" ]; then
     echo -e "${GREEN}同步Swagger文档到YAPI...${NC}"
-    node "$SCRIPT_DIR/sync-swagger-to-yapi.js"
+    # 使用NODE_PATH环境变量使脚本能找到node_modules
+    NODE_PATH="$NODE_DIR/node_modules" node "$SCRIPT_DIR/sync-swagger-to-yapi.js"
 else
     echo -e "${YELLOW}跳过同步到YAPI (设置SYNC_TO_YAPI=true以启用)${NC}"
 fi

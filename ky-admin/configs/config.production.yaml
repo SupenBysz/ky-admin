@@ -18,11 +18,11 @@ server:
 # 数据库配置
 database:
     driver: 'mysql'
-    host: 'db.production.example.com'
+    host: '10.68.73.213'
     port: 3306
-    username: 'prod_user'
-    password: '${DB_PASSWORD}' # 从环境变量加载
-    database: 'ky_admin_prod'
+    username: 'kysion'
+    password: '2te2xCjJHzC7ReZ3'
+    database: 'kysiondb'
     charset: 'utf8mb4'
     max_idle_conns: 10
     max_open_conns: 100

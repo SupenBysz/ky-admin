@@ -30,6 +30,22 @@ ky-admin/
 └── test/              # 测试代码
 ```
 
+## 最近优化
+
+### 目录结构优化（2025-03-22）
+
+- 将构建产物从`bin/`目录移动到`../artifacts/bin/`
+- 将日志文件从`logs/`目录移动到`../artifacts/logs/`
+- 更新Makefile和配置文件以适应新的目录结构
+- 添加构建脚本以简化开发过程
+
+### CI/CD优化（2025-03-22）
+
+- 更新GitHub Actions版本
+- 统一测试和部署工作流
+- 改进测试报告和覆盖率徽章
+- 优化环境变量和配置管理
+
 ## 技术栈
 
 - 语言：Go 1.24+
@@ -71,8 +87,8 @@ go mod download
 4. 构建与运行
 
 ```bash
-make build
-make run
+./scripts/build.sh  # 构建项目
+../artifacts/bin/ky-admin  # 运行服务
 ```
 
 ## 开发指南

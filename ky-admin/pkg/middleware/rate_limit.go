@@ -4,7 +4,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/SupenBysz/ky-admin/pkg/api"
+	"github.com/SupenBysz/ky-admin/internal/pkg/response"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/time/rate"
 )
@@ -71,7 +71,7 @@ func RateLimit(limiter *IPRateLimiter) gin.HandlerFunc {
 
 		// 尝试获取令牌
 		if !ipLimiter.Allow() {
-			api.Fail(c, 429, "请求过于频繁，请稍后再试")
+			response.Fail(c, 429, "请求过于频繁，请稍后再试", nil)
 			c.Abort()
 			return
 		}

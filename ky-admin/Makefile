@@ -1,4 +1,4 @@
-.PHONY: build run clean test lint help
+.PHONY: build run clean test lint help test-api test-coverage test-all test-report
 
 # 项目名称和主包位置
 PROJECT_NAME := ky-admin
@@ -10,7 +10,7 @@ BUILD_TIME := $(shell date +%Y-%m-%d_%H:%M:%S)
 GIT_COMMIT := $(shell git rev-parse --short HEAD 2>/dev/null || echo "unknown")
 
 # 构建输出目录
-BUILD_DIR := ./build
+BUILD_DIR := ../../artifacts/bin
 
 # Go命令
 GO := go
@@ -55,6 +55,23 @@ test:
 	@echo "Running tests..."
 	$(GOTEST) -v -race -coverprofile=coverage.txt -covermode=atomic ./...
 	@echo "Tests complete"
+
+# 测试相关目标
+test-api:
+	@echo "运行API测试..."
+	@cd tests && make test-api
+
+test-coverage:
+	@echo "运行覆盖率测试..."
+	@cd tests && make test-coverage
+
+test-all:
+	@echo "运行所有测试..."
+	@cd tests && make test-all
+
+test-report:
+	@echo "生成并查看测试报告..."
+	@cd tests && make test-report
 
 lint:
 	@echo "Running linter..."

@@ -18,16 +18,16 @@ server:
 # 数据库配置
 database:
     driver: 'mysql'
-    host: '127.0.0.1'
+    host: '10.68.73.213'
     port: 3306
-    username: 'test_user'
-    password: 'test_password'
-    database: 'ky_admin_test'
+    username: 'kysion_test'
+    password: 'Qm2bhXr5dFWMJ5yt'
+    database: 'kysiondb_test'
     charset: 'utf8mb4'
     max_idle_conns: 10
-    max_open_conns: 50
+    max_open_conns: 100
     conn_max_lifetime: 3600
-    log_level: 'debug' # debug, info, warn, error, silent
+    log_level: 'info'
     # 注意：虽然使用的是MariaDB，但驱动仍使用mysql，因为GORM使用mysql驱动连接MariaDB
 
 # 日志配置
@@ -39,7 +39,7 @@ log:
     # 日志输出：stdout, file
     output: 'stdout'
     # 日志文件路径（当output为file时有效）
-    filepath: './logs/test.log'
+    filepath: '../../artifacts/logs/test.log'
     # 是否显示行号
     show_line: true
     # 是否显示调用函数

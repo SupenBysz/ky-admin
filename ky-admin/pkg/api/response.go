@@ -3,126 +3,158 @@ package api
 import (
 	"net/http"
 
+	"github.com/SupenBysz/ky-admin/internal/common/errors"
 	"github.com/gin-gonic/gin"
 )
 
-// 响应码
+// 响应状态码
 const (
-	CodeSuccess       = 0    // 成功
-	CodeParamError    = 1001 // 参数错误
-	CodeAuthError     = 1002 // 认证错误
-	CodeForbidden     = 1003 // 禁止访问
-	CodeNotFound      = 1004 // 资源不存在
-	CodeServerError   = 2001 // 服务器错误
-	CodeDatabaseError = 2002 // 数据库错误
-	CodeUnknownError  = 9999 // 未知错误
+	CodeSuccess       = 0   // 成功
+	CodeBadRequest    = 400 // 请求错误
+	CodeUnauthorized  = 401 // 未授权
+	CodeForbidden     = 403 // 禁止访问
+	CodeNotFound      = 404 // 资源不存在
+	CodeInternalError = 500 // 服务器内部错误
 )
 
-// Response 标准API响应结构
+// Response 统一响应结构
 type Response struct {
-	Code    int         `json:"code"`               // 业务码
-	Message string      `json:"message"`            // 响应消息
-	Data    interface{} `json:"data"`               // 响应数据
-	TraceID string      `json:"trace_id,omitempty"` // 请求跟踪ID
+	Code    int         `json:"code"`    // 响应码
+	Message string      `json:"message"` // 响应消息
+	Data    interface{} `json:"data"`    // 响应数据
 }
 
-// Success 返回成功响应
+// Success 成功响应
 func Success(c *gin.Context, data interface{}) {
-	traceID := c.GetString("trace_id")
 	c.JSON(http.StatusOK, Response{
 		Code:    CodeSuccess,
 		Message: "操作成功",
 		Data:    data,
-		TraceID: traceID,
 	})
 }
 
-// SuccessWithMsg 返回带自定义消息的成功响应
-func SuccessWithMsg(c *gin.Context, message string, data interface{}) {
-	traceID := c.GetString("trace_id")
+// SuccessWithMessage 带自定义消息的成功响应
+func SuccessWithMessage(c *gin.Context, message string, data interface{}) {
 	c.JSON(http.StatusOK, Response{
 		Code:    CodeSuccess,
 		Message: message,
 		Data:    data,
-		TraceID: traceID,
 	})
 }
 
-// Fail 返回失败响应
-func Fail(c *gin.Context, code int, message string) {
-	traceID := c.GetString("trace_id")
-	c.JSON(http.StatusOK, Response{
+// SuccessWithPage 带分页的成功响应
+func SuccessWithPage(c *gin.Context, data interface{}, total int64, page, pageSize int) {
+	c.JSON(http.StatusOK, gin.H{
+		"code":    CodeSuccess,
+		"message": "查询成功",
+		"data":    data,
+		"page":    page,
+		"size":    pageSize,
+		"total":   total,
+	})
+}
+
+// Error 错误响应
+func Error(c *gin.Context, err error) {
+	var code int
+	var message string
+	var httpStatus int
+
+	// 使用断言检查是否为AppError类型
+	if appErr, ok := err.(*errors.AppError); ok {
+		code = appErr.Code
+		message = appErr.Message
+		if appErr.Err != nil {
+			message = message + ": " + appErr.Err.Error()
+		}
+
+		// 根据错误码设置HTTP状态码
+		switch appErr.Code {
+		case errors.CodeInvalidParams:
+			httpStatus = http.StatusBadRequest
+		case errors.CodeUnauthorized:
+			httpStatus = http.StatusUnauthorized
+		case errors.CodeForbidden:
+			httpStatus = http.StatusForbidden
+		case errors.CodeNotFound:
+			httpStatus = http.StatusNotFound
+		default:
+			httpStatus = http.StatusInternalServerError
+		}
+	} else {
+		// 默认为内部错误
+		code = CodeInternalError
+		message = err.Error()
+		httpStatus = http.StatusInternalServerError
+	}
+
+	c.JSON(httpStatus, Response{
 		Code:    code,
 		Message: message,
 		Data:    nil,
-		TraceID: traceID,
 	})
 }
 
-// ParamError 返回参数错误响应
+// ParamError 参数错误响应
 func ParamError(c *gin.Context, message string) {
-	if message == "" {
-		message = "参数错误"
-	}
-	Fail(c, CodeParamError, message)
-}
-
-// AuthError 返回认证错误响应
-func AuthError(c *gin.Context, message string) {
-	if message == "" {
-		message = "认证失败"
-	}
-	c.JSON(http.StatusUnauthorized, Response{
-		Code:    CodeAuthError,
+	c.JSON(http.StatusBadRequest, Response{
+		Code:    CodeBadRequest,
 		Message: message,
 		Data:    nil,
-		TraceID: c.GetString("trace_id"),
 	})
 }
 
-// ForbiddenError 返回禁止访问响应
-func ForbiddenError(c *gin.Context, message string) {
-	if message == "" {
-		message = "禁止访问"
-	}
+// Unauthorized 未授权响应
+func Unauthorized(c *gin.Context, message string) {
+	c.JSON(http.StatusUnauthorized, Response{
+		Code:    CodeUnauthorized,
+		Message: message,
+		Data:    nil,
+	})
+}
+
+// Forbidden 禁止访问响应
+func Forbidden(c *gin.Context, message string) {
 	c.JSON(http.StatusForbidden, Response{
 		Code:    CodeForbidden,
 		Message: message,
 		Data:    nil,
-		TraceID: c.GetString("trace_id"),
 	})
 }
 
-// NotFoundError 返回资源不存在响应
-func NotFoundError(c *gin.Context, message string) {
-	if message == "" {
-		message = "资源不存在"
-	}
+// NotFound 资源不存在响应
+func NotFound(c *gin.Context, message string) {
 	c.JSON(http.StatusNotFound, Response{
 		Code:    CodeNotFound,
 		Message: message,
 		Data:    nil,
-		TraceID: c.GetString("trace_id"),
 	})
 }
 
-// ServerError 返回服务器错误响应
-func ServerError(c *gin.Context, message string) {
-	if message == "" {
-		message = "服务器内部错误"
+// Failed 通用失败响应
+func Failed(c *gin.Context, code int, message string, data ...interface{}) {
+	var responseData interface{}
+	if len(data) > 0 {
+		responseData = data[0]
 	}
-	c.JSON(http.StatusInternalServerError, Response{
-		Code:    CodeServerError,
+
+	var httpStatus int
+	switch code {
+	case CodeBadRequest:
+		httpStatus = http.StatusBadRequest
+	case CodeUnauthorized:
+		httpStatus = http.StatusUnauthorized
+	case CodeForbidden:
+		httpStatus = http.StatusForbidden
+	case CodeNotFound:
+		httpStatus = http.StatusNotFound
+	default:
+		httpStatus = http.StatusInternalServerError
+	}
+
+	c.JSON(httpStatus, Response{
+		Code:    code,
 		Message: message,
-		Data:    nil,
-		TraceID: c.GetString("trace_id"),
+		Data:    responseData,
 	})
-}
-
-// DatabaseError 返回数据库错误响应
-func DatabaseError(c *gin.Context, message string) {
-	if message == "" {
-		message = "数据库操作错误"
-	}
-	ServerError(c, message)
 }

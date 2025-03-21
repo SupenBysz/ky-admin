@@ -18,11 +18,11 @@ server:
 # 数据库配置
 database:
     driver: 'mysql'
-    host: '127.0.0.1'
+    host: '10.68.73.213'
     port: 3306
-    username: 'root'
-    password: 'password'
-    database: 'ky_admin'
+    username: 'kysion_test'
+    password: 'Qm2bhXr5dFWMJ5yt'
+    database: 'kysiondb_test'
     charset: 'utf8mb4'
     max_idle_conns: 10
     max_open_conns: 100
@@ -35,11 +35,11 @@ log:
     # 日志级别：debug, info, warn, error, fatal
     level: 'debug'
     # 日志格式：console, json
-    format: 'console'
+    format: 'json'
     # 日志输出：stdout, file
-    output: 'stdout'
+    output: 'console'
     # 日志文件路径（当output为file时有效）
-    filepath: './logs/app.log'
+    filepath: './logs'
     # 是否显示行号
     show_line: true
     # 是否显示调用函数
@@ -51,7 +51,7 @@ log:
     # 保留旧日志文件的最大天数
     max_age: 30
     # 是否压缩旧日志文件
-    compress: true
+    compress: false
 
 # CORS配置
 cors:
@@ -71,19 +71,29 @@ cors:
     allow_headers:
         - 'Authorization'
         - 'Content-Type'
+        - 'Origin'
+        - 'Accept'
+        - 'X-Requested-With'
     # 是否允许携带凭证
     allow_credentials: true
     # 预检请求的有效期（秒）
     max_age: 86400
+    # 暴露的头
+    exposed_headers:
+        - 'Content-Length'
 
 # JWT配置
 jwt:
     # 密钥
-    secret: 'your-secret-key-change-me-in-production'
-    # 过期时间（分钟）
+    secret: 'kysion-admin-secret-key'
+    # 访问令牌过期时间（分钟）
     expiration: 60
+    # 访问令牌过期时间（小时）- 新格式，优先于expiration
+    token_expire: 24
     # 刷新令牌过期时间（小时）
     refresh_expiration: 24
+    # 刷新令牌过期时间（小时）- 新格式，优先于refresh_expiration
+    refresh_expire: 168
     # 签发者
     issuer: 'ky-admin'
 
@@ -95,8 +105,22 @@ cache:
     default_expiration: 3600
     # Redis配置（当type为redis时有效）
     redis:
-        host: '127.0.0.1'
+        host: 'localhost'
         port: 6379
         password: ''
         database: 0
         pool_size: 10
+        min_idle_conns: 5
+
+app:
+    name: ky-admin
+    env: development
+    timezone: Asia/Shanghai
+    mode: debug
+
+http:
+    host: 0.0.0.0
+    port: 8080
+    read_timeout: 10
+    write_timeout: 10
+    idle_timeout: 60

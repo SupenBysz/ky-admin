@@ -50,7 +50,7 @@ func Recovery() gin.HandlerFunc {
 				}
 
 				// 返回500错误
-				api.ServerError(c, "服务器内部错误")
+				api.Failed(c, api.CodeInternalError, "服务器内部错误")
 			}
 		}()
 		c.Next()
