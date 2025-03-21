@@ -5,10 +5,14 @@ import (
 	"net/http"
 	"time"
 
+	internalAPI "github.com/SupenBysz/ky-admin/internal/api"
 	"github.com/SupenBysz/ky-admin/pkg/api"
 	"github.com/SupenBysz/ky-admin/pkg/config"
 	"github.com/SupenBysz/ky-admin/pkg/middleware"
 	"github.com/gin-gonic/gin"
+
+	// 导入Swagger文档
+	_ "github.com/SupenBysz/ky-admin/docs/swagger"
 )
 
 // SetupRouter 配置路由
@@ -26,28 +30,31 @@ func SetupRouter(cfg *config.Config) *gin.Engine {
 	r.Use(middleware.CORS())
 	r.Use(middleware.DefaultRateLimit())
 
+	// 配置Swagger路由
+	SetupSwaggerRoutes(r)
+
+	// 初始化控制器
+	healthController := internalAPI.NewHealthController()
+	userController := internalAPI.NewUserController()
+
 	// 健康检查
-	r.GET("/health", func(c *gin.Context) {
-		api.Success(c, gin.H{"status": "ok"})
-	})
-
-	r.GET("/livez", func(c *gin.Context) {
-		api.Success(c, gin.H{"status": "alive"})
-	})
-
-	r.GET("/readyz", func(c *gin.Context) {
-		api.Success(c, gin.H{"status": "ready"})
-	})
+	r.GET("/health", healthController.Health)
+	r.GET("/livez", healthController.LivenessProbe)
+	r.GET("/readyz", healthController.ReadinessProbe)
 
 	// API路由组
 	apiGroup := r.Group("/api")
 	{
+		// 认证相关
+		authGroup := apiGroup.Group("/auth")
+		{
+			authGroup.POST("/login", userController.Login)
+		}
+
 		// 用户相关API
 		userGroup := apiGroup.Group("/users")
 		{
-			userGroup.GET("", func(c *gin.Context) {
-				api.Success(c, []interface{}{})
-			})
+			userGroup.GET("", userController.GetUsers)
 		}
 
 		// 角色相关API

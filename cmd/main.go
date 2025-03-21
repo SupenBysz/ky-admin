@@ -10,12 +10,26 @@ import (
 	"time"
 
 	"github.com/SupenBysz/ky-admin/pkg/config"
-	"github.com/SupenBysz/ky-admin/pkg/database"
 	"github.com/SupenBysz/ky-admin/pkg/logger"
-	"github.com/SupenBysz/ky-admin/pkg/models"
 	"github.com/SupenBysz/ky-admin/pkg/router"
 	"go.uber.org/zap"
 )
+
+// @title KY-Admin API
+// @version 1.0
+// @description KY-Admin后台管理系统API文档
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name API Support
+// @contact.url http://www.kysion.com/support
+// @contact.email support@kysion.com
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host localhost:8080
+// @BasePath /api
+// @schemes http https
 
 // 版本信息，通过编译时传入
 var (
@@ -68,23 +82,34 @@ func main() {
 		zap.String("db_name", dbName),
 	)
 
-	// 连接数据库
-	dbManager := database.NewDBManager(cfg)
-	dbManager.SetLogger(logger.GetLogger())
+	// 临时跳过数据库连接以便测试Swagger UI
+	fmt.Println("跳过数据库连接，仅用于测试...")
 
-	if err := dbManager.Connect(); err != nil {
-		logger.Error("连接数据库失败", zap.Error(err))
-		os.Exit(1)
-	}
-	defer dbManager.Close()
+	/*
+		// 连接数据库
+		fmt.Println("准备连接数据库...")
+		dbManager := database.NewDBManager(cfg)
+		dbManager.SetLogger(logger.GetLogger())
 
-	// 注册数据库连接到模型
-	models.RegisterDB(dbManager.GetDB())
+		if err := dbManager.Connect(); err != nil {
+			fmt.Printf("连接数据库失败: %v\n", err)
+			logger.Error("连接数据库失败", zap.Error(err))
+			os.Exit(1)
+		}
 
-	logger.Info("数据库连接成功")
+		fmt.Println("数据库连接成功！")
+		defer dbManager.Close()
+
+		// 注册数据库连接到模型
+		models.RegisterDB(dbManager.GetDB())
+
+		logger.Info("数据库连接成功")
+	*/
 
 	// 初始化HTTP服务
+	fmt.Println("初始化路由...")
 	r := router.SetupRouter(cfg)
+	fmt.Println("路由初始化完成！")
 
 	// 服务器配置
 	server := &http.Server{
@@ -97,8 +122,10 @@ func main() {
 
 	// 启动HTTP服务器（非阻塞）
 	go func() {
+		fmt.Printf("HTTP服务器正在启动，监听地址: %s\n", serverAddr)
 		logger.Info("HTTP服务器正在启动", zap.String("addr", serverAddr))
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			fmt.Printf("HTTP服务器启动失败: %v\n", err)
 			logger.Error("HTTP服务器启动失败", zap.Error(err))
 			os.Exit(1)
 		}

@@ -1,0 +1,49 @@
+environment: development
+
+server:
+    host: '127.0.0.1'
+    port: 8080
+    read_timeout: 10
+    write_timeout: 10
+    shutdown_timeout: 5
+
+database:
+    driver: 'mysql'
+    host: '127.0.0.1'
+    port: 3306
+    username: 'root'
+    password: 'password'
+    database: 'ky_admin'
+    charset: 'utf8mb4'
+    max_idle_conns: 10
+    max_open_conns: 100
+    conn_max_lifetime: 3600
+    log_level: 'info'
+
+logger:
+    level: 'debug'
+    format: 'console'
+    output: 'stdout'
+    file_path: './logs/app.log'
+    max_size: 100
+    max_age: 7
+    max_backups: 10
+    compress: false
+
+jwt:
+    secret: 'ky-admin-secret-key'
+    expires_in: 86400 # 24小时
+    issuer: 'ky-admin'
+
+cors:
+    allowed_origins: ['*']
+    allowed_methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+    allowed_headers: ['Origin', 'Content-Type', 'Accept', 'Authorization']
+    expose_headers: ['Content-Length', 'Content-Type']
+    allow_credentials: true
+    max_age: 86400
+
+rate_limit:
+    enabled: true
+    requests_per_second: 10
+    burst: 20

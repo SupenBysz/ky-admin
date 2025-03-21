@@ -1,0 +1,181 @@
+basePath: /api
+definitions:
+  api.LoginRequest:
+    properties:
+      password:
+        description: 密码
+        example: password123
+        type: string
+      username:
+        description: 用户名
+        example: admin
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  api.LoginResponse:
+    properties:
+      token:
+        description: JWT令牌
+        type: string
+      userId:
+        description: 用户ID
+        type: integer
+    type: object
+  api.Response:
+    properties:
+      code:
+        description: 业务码
+        type: integer
+      data:
+        description: 响应数据
+      message:
+        description: 响应消息
+        type: string
+      trace_id:
+        description: 请求跟踪ID
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@kysion.com
+    name: API Support
+    url: http://www.kysion.com/support
+  description: KY-Admin后台管理系统API文档
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: KY-Admin API
+  version: "1.0"
+paths:
+  /api/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: 用户登录接口
+      parameters:
+      - description: 登录信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/api.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 登录成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/api.LoginResponse'
+              type: object
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/api.Response'
+        "401":
+          description: 认证失败
+          schema:
+            $ref: '#/definitions/api.Response'
+      summary: 用户登录
+      tags:
+      - 用户管理
+  /api/users:
+    get:
+      consumes:
+      - application/json
+      description: 获取系统用户列表
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 用户列表
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.Response'
+            - properties:
+                data:
+                  items:
+                    additionalProperties: true
+                    type: object
+                  type: array
+              type: object
+      summary: 获取用户列表
+      tags:
+      - 用户管理
+  /health:
+    get:
+      consumes:
+      - application/json
+      description: 返回服务健康状态
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 服务健康
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.Response'
+            - properties:
+                data:
+                  additionalProperties:
+                    type: string
+                  type: object
+              type: object
+      summary: 健康检查接口
+      tags:
+      - 健康检查
+  /livez:
+    get:
+      consumes:
+      - application/json
+      description: 用于Kubernetes存活探测
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 服务存活
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.Response'
+            - properties:
+                data:
+                  additionalProperties:
+                    type: string
+                  type: object
+              type: object
+      summary: 存活探针
+      tags:
+      - 健康检查
+  /readyz:
+    get:
+      consumes:
+      - application/json
+      description: 用于Kubernetes就绪探测
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 服务就绪
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.Response'
+            - properties:
+                data:
+                  additionalProperties:
+                    type: string
+                  type: object
+              type: object
+      summary: 就绪探针
+      tags:
+      - 健康检查
+schemes:
+- http
+- https
+swagger: "2.0"
