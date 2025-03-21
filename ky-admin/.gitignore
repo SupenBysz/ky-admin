@@ -1,8 +1,6 @@
 # 编译输出
 /bin/
 /dist/
-*/bin/
-*/dist/
 *.exe
 *.exe~
 *.dll
@@ -27,10 +25,7 @@ coverage.txt
 # 依赖目录
 /vendor/
 /node_modules/
-*/vendor/
-*/node_modules/
-/ky-admin/swagger/*.json
-/ky-admin/swagger/*.yaml
+/docs/swagger/
 /scripts/data/
 
 # 本地配置
@@ -40,27 +35,16 @@ coverage.txt
 
 # 日志文件
 /logs/
-*/logs/
 *.log
-
-# 临时文件
-/tmp/
-*/tmp/
-.tmp/
-
-# 测试报告
-/tests/reports/*/
-/tests/reports/latest/
-
-# Docker数据
-/docker/data/
-*/docker/data/
 
 # Go模块缓存
 go.sum
 
+# 临时文件
+/tmp/
+.tmp/
+
 # 二进制构建产物
 /build/
-*/build/
 main
-ky-admin
+ky-admin 

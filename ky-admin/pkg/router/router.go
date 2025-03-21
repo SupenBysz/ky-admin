@@ -12,7 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	// 导入Swagger文档
-	_ "github.com/SupenBysz/ky-admin/docs/swagger"
+	_ "github.com/SupenBysz/ky-admin/swagger"
 )
 
 // SetupRouter 配置路由

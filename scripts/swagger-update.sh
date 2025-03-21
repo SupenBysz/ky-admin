@@ -31,10 +31,10 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # 项目根目录
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 # Swagger输出目录
-SWAGGER_OUTPUT_DIR="$PROJECT_DIR/docs/swagger"
+SWAGGER_OUTPUT_DIR="$PROJECT_DIR/ky-admin/swagger"
 
 echo -e "${GREEN}使用swag生成Swagger文档...${NC}"
-cd "$PROJECT_DIR"
+cd "$PROJECT_DIR/ky-admin"
 swag init -g cmd/main.go -o "$SWAGGER_OUTPUT_DIR"
 
 # 判断是否需要同步到YAPI

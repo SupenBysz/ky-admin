@@ -28,11 +28,11 @@ log:
     compress: false
 
 database:
-    host: 'localhost'
+    host: '10.68.73.213'
     port: 3306
-    username: 'test_user'
-    password: 'test_password'
-    name: 'ky_admin_test'
+    username: 'kysion'
+    password: '2te2xCjJHzC7ReZ3'
+    name: 'kysiondb'
     charset: 'utf8mb4'
     parse_time: true
     loc: 'Local'
@@ -68,7 +68,7 @@ cors:
     max_age: 86400
 
 redis:
-    host: 'localhost'
+    host: '10.68.73.213'
     port: 6379
     password: ''
     db: 1

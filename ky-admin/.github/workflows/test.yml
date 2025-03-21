@@ -1,0 +1,214 @@
+name: Go Tests
+
+on:
+    push:
+        branches: [main, develop]
+    pull_request:
+        branches: [main, develop]
+
+jobs:
+    test:
+        name: Test
+        runs-on: ubuntu-latest
+
+        services:
+            mysql:
+                image: mysql:8.0
+                env:
+                    MYSQL_ROOT_PASSWORD: password
+                    MYSQL_DATABASE: ky_admin_test
+                    MYSQL_USER: test_user
+                    MYSQL_PASSWORD: test_password
+                ports:
+                    - 3306:3306
+                options: >-
+                    --health-cmd="mysqladmin ping -h localhost -u root -ppassword"
+                    --health-interval=10s
+                    --health-timeout=5s
+                    --health-retries=5
+
+            redis:
+                image: redis:6.2
+                ports:
+                    - 6379:6379
+                options: >-
+                    --health-cmd="redis-cli ping"
+                    --health-interval=10s
+                    --health-timeout=5s
+                    --health-retries=5
+
+        steps:
+            - name: Set up Go
+              uses: actions/setup-go@v2
+              with:
+                  go-version: ^1.20
+
+            - name: Check out code
+              uses: actions/checkout@v2
+
+            - name: Cache Go modules
+              uses: actions/cache@v2
+              with:
+                  path: ~/go/pkg/mod
+                  key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+                  restore-keys: |
+                      ${{ runner.os }}-go-
+
+            - name: Install dependencies
+              run: cd ky-admin && go mod download
+
+            - name: Verify dependencies
+              run: cd ky-admin && go mod verify
+
+            - name: Create test configuration
+              run: |
+                  cd ky-admin
+                  mkdir -p configs
+                  cat > configs/test.yaml << EOF
+                  app:
+                    name: ky-admin
+                    version: 0.1.0
+                    port: 8000
+                    timeout: 30
+                    mode: test
+                    allowed_origins:
+                      - "http://localhost:3000"
+                      - "http://127.0.0.1:3000"
+                    debug: true
+                    api_health_check_path: "/healthz"
+                    jwt_secret: "test_jwt_secret"
+
+                  log:
+                    level: debug
+                    format: console
+                    time_format: "2006-01-02 15:04:05"
+                    caller: true
+                    filename: "logs/ky-admin.log"
+                    max_size: 100
+                    max_age: 30
+                    max_backups: 10
+                    compress: true
+
+                  database:
+                    driver: mysql
+                    host: 127.0.0.1
+                    port: 3306
+                    username: test_user
+                    password: test_password
+                    database: ky_admin_test
+                    charset: utf8mb4
+                    max_idle_conns: 10
+                    max_open_conns: 100
+                    conn_max_lifetime: 3600
+                    log_level: 4
+
+                  jwt:
+                    secret: test_jwt_secret
+                    issuer: ky-admin
+                    expire: 86400
+                    refresh_expire: 604800
+
+                  cors:
+                    allowed_origins:
+                      - "http://localhost:3000"
+                      - "http://127.0.0.1:3000"
+                    allowed_methods:
+                      - "GET"
+                      - "POST"
+                      - "PUT"
+                      - "DELETE"
+                      - "OPTIONS"
+                    allowed_headers:
+                      - "Authorization"
+                      - "Content-Type"
+                    allow_credentials: true
+
+                  redis:
+                    host: localhost
+                    port: 6379
+                    password: ""
+                    db: 0
+
+                  rate_limit:
+                    enabled: true
+                    rate: 100
+                    burst: 10
+                  EOF
+
+            - name: Run tests using test script
+              run: |
+                  TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+                  mkdir -p tests/reports/$TIMESTAMP
+                  echo "REPORT_DIR=tests/reports/$TIMESTAMP" >> $GITHUB_ENV
+
+                  # 运行单元测试
+                  cd ky-admin
+                  go test ./... -v | tee ../$REPORT_DIR/test_output.log
+
+            - name: Run API tests
+              run: |
+                  cd ky-admin
+                  go test ./test/api -v | tee -a ../$REPORT_DIR/test_output.log
+
+            - name: Run coverage test
+              run: |
+                  cd ky-admin
+                  go test ./... -coverprofile=../$REPORT_DIR/coverage.out
+                  go tool cover -html=../$REPORT_DIR/coverage.out -o ../$REPORT_DIR/coverage.html
+                  go tool cover -func=../$REPORT_DIR/coverage.out > ../$REPORT_DIR/coverage.txt
+
+            - name: Generate test summary
+              run: |
+                  cd scripts
+                  go run test_report_tool.go -mode=summary -input ../$REPORT_DIR/test_output.log -dir ../$REPORT_DIR
+
+            - name: Check test coverage
+              run: |
+                  COVERAGE=$(go tool cover -func=$REPORT_DIR/coverage.out | grep total | awk '{print $3}' | tr -d '%')
+                  echo "测试覆盖率: $COVERAGE%"
+                  if (( $(echo "$COVERAGE < 80" | bc -l) )); then
+                      echo "Test coverage is below 80%. Current coverage: $COVERAGE%"
+                      exit 1
+                  else
+                      echo "Test coverage is at $COVERAGE%"
+                  fi
+
+            - name: Archive test reports
+              uses: actions/upload-artifact@v2
+              with:
+                  name: test-reports
+                  path: ${{ env.REPORT_DIR }}
+                  retention-days: 14
+
+            - name: Generate test badge
+              if: ${{ success() }}
+              run: |
+                  # 提取覆盖率数据
+                  COVERAGE=$(grep -o "total:.*statements" $REPORT_DIR/coverage.txt | grep -o "[0-9]\+\.[0-9]\+")
+                  TESTS_PASSED=$(grep -o "ok" $REPORT_DIR/test_output.log | wc -l)
+
+                  # 创建徽章配置目录
+                  mkdir -p badges
+
+                  # 编写覆盖率徽章
+                  echo "{\"schemaVersion\":1,\"label\":\"coverage\",\"message\":\"${COVERAGE}%\",\"color\":\"green\"}" > badges/coverage.json
+
+                  # 编写测试通过徽章
+                  echo "{\"schemaVersion\":1,\"label\":\"tests\",\"message\":\"${TESTS_PASSED} passed\",\"color\":\"green\"}" > badges/tests.json
+
+            - name: Upload badge data
+              if: ${{ success() && github.ref == 'refs/heads/main' }}
+              uses: actions/upload-artifact@v2
+              with:
+                  name: badges
+                  path: badges
+                  retention-days: 1
+
+            - name: Deploy badges to GitHub Pages
+              if: ${{ success() && github.ref == 'refs/heads/main' }}
+              uses: peaceiris/actions-gh-pages@v3
+              with:
+                  github_token: ${{ secrets.GITHUB_TOKEN }}
+                  publish_dir: ./badges
+                  destination_dir: badges
+                  keep_files: true

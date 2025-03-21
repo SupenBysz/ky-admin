@@ -1,0 +1,42 @@
+# 测试配置文件
+# 路径配置
+paths:
+    project_root: '..' # 相对于tests目录的项目根目录
+    reports_dir: 'reports' # 测试报告目录
+    fixtures_dir: 'fixtures' # 测试数据目录
+
+# 测试服务器配置
+server:
+    host: 'localhost'
+    port: 8089
+
+# 覆盖率阈值配置
+coverage:
+    threshold:
+        statement: 70
+        function: 80
+        branch: 60
+        line: 70
+
+# 数据库配置
+database:
+    host: 'localhost'
+    port: 3306
+    user: 'test_user'
+    password: 'test_password'
+    name: 'test_db'
+
+# 测试类型
+test_types:
+    - name: 'api'
+      directory: 'api'
+      description: 'API测试'
+    - name: 'unit'
+      directory: 'unit'
+      description: '单元测试'
+    - name: 'integration'
+      directory: 'integration'
+      description: '集成测试'
+    - name: 'performance'
+      directory: 'performance'
+      description: '性能测试'
