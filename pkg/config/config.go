@@ -255,3 +255,13 @@ func (c *Config) IsDevelopment() bool {
 func (c *Config) IsTest() bool {
 	return c.LoadEnvironment() == "test"
 }
+
+// Server HTTP服务器配置
+type Server struct {
+	Host            string `mapstructure:"host"`
+	Port            int    `mapstructure:"port"`
+	Address         string `mapstructure:"address"`
+	ReadTimeout     int    `mapstructure:"read_timeout"`
+	WriteTimeout    int    `mapstructure:"write_timeout"`
+	ShutdownTimeout int    `mapstructure:"shutdown_timeout"`
+}

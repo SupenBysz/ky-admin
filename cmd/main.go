@@ -1,15 +1,19 @@
 package main
 
 import (
+	"context"
 	"fmt"
-	"log"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
 	"github.com/SupenBysz/ky-admin/pkg/config"
+	"github.com/SupenBysz/ky-admin/pkg/database"
 	"github.com/SupenBysz/ky-admin/pkg/logger"
+	"github.com/SupenBysz/ky-admin/pkg/models"
+	"github.com/SupenBysz/ky-admin/pkg/router"
 	"go.uber.org/zap"
 )
 
@@ -31,7 +35,8 @@ func main() {
 
 	// 初始化日志系统
 	if err := logger.InitFromConfig(); err != nil {
-		log.Fatalf("初始化日志系统失败: %v", err)
+		fmt.Printf("初始化日志系统失败: %v\n", err)
+		os.Exit(1)
 	}
 	defer logger.Sync()
 
@@ -63,19 +68,45 @@ func main() {
 		zap.String("db_name", dbName),
 	)
 
-	// TODO: 连接数据库
+	// 连接数据库
+	dbManager := database.NewDBManager(cfg)
+	dbManager.SetLogger(logger.GetLogger())
 
-	// TODO: 初始化HTTP服务
+	if err := dbManager.Connect(); err != nil {
+		logger.Error("连接数据库失败", zap.Error(err))
+		os.Exit(1)
+	}
+	defer dbManager.Close()
+
+	// 注册数据库连接到模型
+	models.RegisterDB(dbManager.GetDB())
+
+	logger.Info("数据库连接成功")
+
+	// 初始化HTTP服务
+	r := router.SetupRouter(cfg)
+
+	// 服务器配置
+	server := &http.Server{
+		Addr:           serverAddr,
+		Handler:        r,
+		ReadTimeout:    time.Duration(cfg.GetIntWithDefault("server.read_timeout", 10)) * time.Second,
+		WriteTimeout:   time.Duration(cfg.GetIntWithDefault("server.write_timeout", 10)) * time.Second,
+		MaxHeaderBytes: 1 << 20, // 1 MB
+	}
+
+	// 启动HTTP服务器（非阻塞）
+	go func() {
+		logger.Info("HTTP服务器正在启动", zap.String("addr", serverAddr))
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			logger.Error("HTTP服务器启动失败", zap.Error(err))
+			os.Exit(1)
+		}
+	}()
 
 	// 等待中断信号优雅关闭服务器
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-
-	// 启动一个临时HTTP服务器以便能正常退出
-	logger.Info("服务器正在启动...")
-
-	// 模拟服务器运行
-	logger.Info("服务器正在运行...")
 
 	// 等待中断信号
 	<-quit
@@ -87,14 +118,18 @@ func main() {
 		timeout = 5
 	}
 
+	// 创建一个带超时的上下文
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
+	defer cancel()
+
 	logger.Info("等待优雅关闭",
 		zap.Int("timeout_seconds", timeout),
 	)
-	time.Sleep(time.Duration(timeout) * time.Second)
 
-	// TODO: 关闭数据库连接
-
-	// TODO: 关闭HTTP服务
+	// 优雅关闭HTTP服务
+	if err := server.Shutdown(ctx); err != nil {
+		logger.Error("服务器关闭出错", zap.Error(err))
+	}
 
 	logger.Info("服务已正常退出")
 }

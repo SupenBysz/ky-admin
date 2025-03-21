@@ -1,4 +1,17 @@
-# KY-Admin 里程碑阶段性上线方案
+# KY-Admin 项目里程碑计划
+
+> **注意：** 本文档已迁移到新的位置。请前往 [里程碑文档目录](milestones/README.md) 查看更详细的分阶段计划。
+
+## 项目里程碑概览
+
+KY-Admin 项目分为四个主要里程碑：
+
+1. **[基础框架搭建](milestones/milestone1-foundation-plan.md)** (第1-2周)
+2. **[核心功能开发](milestones/milestone2-core-features-plan.md)** (第3-6周)
+3. **[业务模块开发](milestones/milestone3-business-modules-plan.md)** (第7-10周)
+4. **[性能优化与系统完善](milestones/milestone4-optimization-plan.md)** (第11-14周)
+
+每个里程碑都有详细的目标、任务分解、验收标准和风险应对策略，请查看对应的文档获取更多信息。
 
 ## 项目概述
 

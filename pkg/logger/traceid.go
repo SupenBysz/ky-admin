@@ -48,9 +48,9 @@ func TraceField(ctx context.Context) zap.Field {
 func WithContext(ctx context.Context) *zap.Logger {
 	traceID := GetTraceID(ctx)
 	if traceID == "" {
-		return globalLogger.Logger
+		return GetLogger()
 	}
-	return globalLogger.With(zap.String(TraceIDField, traceID))
+	return GetLogger().With(zap.String(TraceIDField, traceID))
 }
 
 // DebugWithContext 使用上下文输出Debug级别日志，自动包含跟踪ID
