@@ -22,6 +22,15 @@ func Success(ctx *gin.Context, data interface{}) {
 	})
 }
 
+// SuccessWithMessage 带消息的成功响应
+func SuccessWithMessage(ctx *gin.Context, data interface{}, message string) {
+	ctx.JSON(http.StatusOK, Response{
+		Code:    0,
+		Message: message,
+		Data:    data,
+	})
+}
+
 // Fail 失败响应
 func Fail(ctx *gin.Context, code int, message string, data interface{}) {
 	ctx.JSON(code, Response{

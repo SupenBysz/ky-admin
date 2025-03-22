@@ -34,7 +34,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "用户管理"
+                    "认证管理"
                 ],
                 "summary": "用户登录",
                 "parameters": [
@@ -44,7 +44,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/api.LoginRequest"
+                            "$ref": "#/definitions/dto.LoginDTO"
                         }
                     }
                 ],
@@ -60,7 +60,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/api.LoginResponse"
+                                            "$ref": "#/definitions/api.TokenResponse"
                                         }
                                     }
                                 }
@@ -160,7 +160,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.RegisterDTO"
+                            "$ref": "#/definitions/dto.RegisterDTO"
                         }
                     }
                 ],
@@ -176,7 +176,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/model.UserDTO"
+                                            "$ref": "#/definitions/dto.UserResponseDTO"
                                         }
                                     }
                                 }
@@ -192,14 +192,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/user/info": {
-            "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "获取当前登录用户的详细信息",
+        "/api/v1/password/forgot": {
+            "post": {
+                "description": "通过邮箱请求密码重置",
                 "consumes": [
                     "application/json"
                 ],
@@ -207,77 +202,33 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "用户管理"
+                    "密码"
                 ],
-                "summary": "获取当前用户信息",
-                "responses": {
-                    "200": {
-                        "description": "用户信息",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/api.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/model.UserDTO"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "401": {
-                        "description": "未授权",
-                        "schema": {
-                            "$ref": "#/definitions/api.Response"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "更新当前登录用户的信息",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "用户管理"
-                ],
-                "summary": "更新用户信息",
+                "summary": "请求密码重置",
                 "parameters": [
                     {
-                        "description": "用户信息",
-                        "name": "data",
+                        "description": "忘记密码请求",
+                        "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.UpdateUserDTO"
+                            "$ref": "#/definitions/dto.ForgotPasswordDTO"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "更新后的用户信息",
+                        "description": "成功",
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/api.Response"
+                                    "$ref": "#/definitions/response.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/model.UserDTO"
+                                            "type": "boolean"
                                         }
                                     }
                                 }
@@ -285,28 +236,23 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "参数错误",
+                        "description": "请求参数错误",
                         "schema": {
-                            "$ref": "#/definitions/api.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
-                    "401": {
-                        "description": "未授权",
+                    "500": {
+                        "description": "内部服务器错误",
                         "schema": {
-                            "$ref": "#/definitions/api.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
             }
         },
-        "/api/user/password": {
-            "put": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "修改当前登录用户的密码",
+        "/api/v1/password/reset": {
+            "post": {
+                "description": "使用令牌重置密码",
                 "consumes": [
                     "application/json"
                 ],
@@ -314,133 +260,57 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "用户管理"
+                    "密码"
                 ],
-                "summary": "修改密码",
+                "summary": "重置密码",
                 "parameters": [
                     {
-                        "description": "密码信息",
-                        "name": "data",
+                        "description": "重置密码请求",
+                        "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.ChangePasswordReq"
+                            "$ref": "#/definitions/dto.ResetPasswordDTO"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "密码修改成功",
-                        "schema": {
-                            "$ref": "#/definitions/api.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "参数错误",
-                        "schema": {
-                            "$ref": "#/definitions/api.Response"
-                        }
-                    },
-                    "401": {
-                        "description": "未授权",
-                        "schema": {
-                            "$ref": "#/definitions/api.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/users": {
-            "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "分页获取用户列表",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "用户管理"
-                ],
-                "summary": "获取用户列表",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "default": 1,
-                        "description": "页码",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "default": 10,
-                        "description": "每页数量",
-                        "name": "pageSize",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "用户名",
-                        "name": "username",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "昵称",
-                        "name": "nickname",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "状态",
-                        "name": "status",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "用户列表",
+                        "description": "成功",
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/api.Response"
+                                    "$ref": "#/definitions/response.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/model.UserDTO"
-                                            }
+                                            "type": "boolean"
                                         }
                                     }
                                 }
                             ]
                         }
                     },
-                    "401": {
-                        "description": "未授权",
+                    "400": {
+                        "description": "请求参数错误",
                         "schema": {
-                            "$ref": "#/definitions/api.Response"
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "内部服务器错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
             }
         },
-        "/api/users/{id}": {
+        "/api/v1/password/validate-token": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "根据用户ID获取用户详细信息",
+                "description": "验证密码重置令牌是否有效",
                 "consumes": [
                     "application/json"
                 ],
@@ -448,31 +318,31 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "用户管理"
+                    "密码"
                 ],
-                "summary": "根据ID获取用户信息",
+                "summary": "验证重置令牌",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "用户ID",
-                        "name": "id",
-                        "in": "path",
+                        "type": "string",
+                        "description": "重置令牌",
+                        "name": "token",
+                        "in": "query",
                         "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "用户信息",
+                        "description": "成功",
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/api.Response"
+                                    "$ref": "#/definitions/response.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/model.UserDTO"
+                                            "type": "boolean"
                                         }
                                     }
                                 }
@@ -480,21 +350,15 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "参数错误",
+                        "description": "请求参数错误",
                         "schema": {
-                            "$ref": "#/definitions/api.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
-                    "401": {
-                        "description": "未授权",
+                    "500": {
+                        "description": "内部服务器错误",
                         "schema": {
-                            "$ref": "#/definitions/api.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "用户不存在",
-                        "schema": {
-                            "$ref": "#/definitions/api.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -616,45 +480,13 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "api.LoginRequest": {
-            "type": "object",
-            "required": [
-                "password",
-                "username"
-            ],
-            "properties": {
-                "password": {
-                    "description": "密码",
-                    "type": "string",
-                    "example": "password123"
-                },
-                "username": {
-                    "description": "用户名",
-                    "type": "string",
-                    "example": "admin"
-                }
-            }
-        },
-        "api.LoginResponse": {
-            "type": "object",
-            "properties": {
-                "token": {
-                    "description": "JWT令牌",
-                    "type": "string"
-                },
-                "userId": {
-                    "description": "用户ID",
-                    "type": "integer"
-                }
-            }
-        },
         "api.RefreshTokenRequest": {
             "type": "object",
             "required": [
-                "refreshToken"
+                "refresh_token"
             ],
             "properties": {
-                "refreshToken": {
+                "refresh_token": {
                     "description": "刷新令牌",
                     "type": "string"
                 }
@@ -663,7 +495,7 @@ const docTemplate = `{
         "api.RefreshTokenResponse": {
             "type": "object",
             "properties": {
-                "refreshToken": {
+                "refresh_token": {
                     "description": "新刷新令牌",
                     "type": "string"
                 },
@@ -677,34 +509,22 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "code": {
-                    "description": "状态码",
+                    "description": "响应码",
                     "type": "integer"
                 },
                 "data": {
-                    "description": "数据"
+                    "description": "响应数据"
                 },
                 "message": {
-                    "description": "消息",
+                    "description": "响应消息",
                     "type": "string"
-                },
-                "page": {
-                    "description": "当前页（用于分页）",
-                    "type": "integer"
-                },
-                "size": {
-                    "description": "每页大小（用于分页）",
-                    "type": "integer"
-                },
-                "total": {
-                    "description": "总数（用于分页）",
-                    "type": "integer"
                 }
             }
         },
         "api.TokenResponse": {
             "type": "object",
             "properties": {
-                "refreshToken": {
+                "refresh_token": {
                     "description": "刷新令牌",
                     "type": "string"
                 },
@@ -717,22 +537,18 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.ChangePasswordReq": {
+        "dto.ForgotPasswordDTO": {
             "type": "object",
             "required": [
-                "newPassword",
-                "oldPassword"
+                "email"
             ],
             "properties": {
-                "newPassword": {
-                    "type": "string"
-                },
-                "oldPassword": {
+                "email": {
                     "type": "string"
                 }
             }
         },
-        "model.LoginDTO": {
+        "dto.LoginDTO": {
             "type": "object",
             "required": [
                 "password",
@@ -751,7 +567,7 @@ const docTemplate = `{
                 }
             }
         },
-        "model.RegisterDTO": {
+        "dto.RegisterDTO": {
             "type": "object",
             "required": [
                 "password",
@@ -778,7 +594,7 @@ const docTemplate = `{
                     "type": "string",
                     "example": "13800138000"
                 },
-                "roleIds": {
+                "role_ids": {
                     "description": "角色ID列表",
                     "type": "array",
                     "items": {
@@ -792,16 +608,26 @@ const docTemplate = `{
                 }
             }
         },
-        "model.RoleDTO": {
+        "dto.ResetPasswordDTO": {
+            "type": "object",
+            "required": [
+                "new_password",
+                "token"
+            ],
+            "properties": {
+                "new_password": {
+                    "type": "string",
+                    "minLength": 6
+                },
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.RoleDTO": {
             "type": "object",
             "properties": {
                 "code": {
-                    "type": "string"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "description": {
                     "type": "string"
                 },
                 "id": {
@@ -809,75 +635,21 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
-                },
-                "permissionIds": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "sort": {
-                    "type": "integer"
-                },
-                "status": {
-                    "type": "integer"
-                },
-                "tenantId": {
-                    "type": "integer"
-                },
-                "updatedAt": {
-                    "type": "string"
                 }
             }
         },
-        "model.UpdateUserDTO": {
+        "dto.UserResponseDTO": {
             "type": "object",
             "properties": {
                 "avatar": {
                     "description": "头像",
                     "type": "string"
                 },
-                "email": {
-                    "description": "邮箱",
-                    "type": "string",
-                    "example": "admin@example.com"
-                },
-                "nickname": {
-                    "description": "昵称",
-                    "type": "string",
-                    "example": "管理员"
-                },
-                "phone": {
-                    "description": "电话",
-                    "type": "string",
-                    "example": "13800138000"
-                },
-                "roleIds": {
-                    "description": "角色ID列表",
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "status": {
-                    "description": "状态",
-                    "type": "integer",
-                    "example": 1
-                }
-            }
-        },
-        "model.UserDTO": {
-            "type": "object",
-            "properties": {
-                "avatar": {
-                    "description": "头像",
-                    "type": "string"
-                },
-                "createdAt": {
+                "created_at": {
                     "description": "创建时间",
                     "type": "string"
                 },
-                "deptId": {
+                "dept_id": {
                     "description": "部门ID",
                     "type": "integer"
                 },
@@ -889,9 +661,20 @@ const docTemplate = `{
                     "description": "用户ID",
                     "type": "integer"
                 },
+                "last_login_at": {
+                    "description": "最后登录时间",
+                    "type": "string"
+                },
                 "nickname": {
                     "description": "昵称",
                     "type": "string"
+                },
+                "permissions": {
+                    "description": "权限列表",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "phone": {
                     "description": "电话",
@@ -901,23 +684,39 @@ const docTemplate = `{
                     "description": "角色列表",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/model.RoleDTO"
+                        "$ref": "#/definitions/dto.RoleDTO"
                     }
                 },
                 "status": {
                     "description": "状态",
                     "type": "integer"
                 },
-                "tenantId": {
+                "tenant_id": {
                     "description": "租户ID",
                     "type": "integer"
                 },
-                "updatedAt": {
+                "updated_at": {
                     "description": "更新时间",
                     "type": "string"
                 },
                 "username": {
                     "description": "用户名",
+                    "type": "string"
+                }
+            }
+        },
+        "response.Response": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "业务代码",
+                    "type": "integer"
+                },
+                "data": {
+                    "description": "数据"
+                },
+                "message": {
+                    "description": "消息",
                     "type": "string"
                 }
             }

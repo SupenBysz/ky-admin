@@ -1,39 +1,16 @@
 basePath: /api
 definitions:
-  api.LoginRequest:
-    properties:
-      password:
-        description: 密码
-        example: password123
-        type: string
-      username:
-        description: 用户名
-        example: admin
-        type: string
-    required:
-    - password
-    - username
-    type: object
-  api.LoginResponse:
-    properties:
-      token:
-        description: JWT令牌
-        type: string
-      userId:
-        description: 用户ID
-        type: integer
-    type: object
   api.RefreshTokenRequest:
     properties:
-      refreshToken:
+      refresh_token:
         description: 刷新令牌
         type: string
     required:
-    - refreshToken
+    - refresh_token
     type: object
   api.RefreshTokenResponse:
     properties:
-      refreshToken:
+      refresh_token:
         description: 新刷新令牌
         type: string
       token:
@@ -43,26 +20,17 @@ definitions:
   api.Response:
     properties:
       code:
-        description: 状态码
+        description: 响应码
         type: integer
       data:
-        description: 数据
+        description: 响应数据
       message:
-        description: 消息
+        description: 响应消息
         type: string
-      page:
-        description: 当前页（用于分页）
-        type: integer
-      size:
-        description: 每页大小（用于分页）
-        type: integer
-      total:
-        description: 总数（用于分页）
-        type: integer
     type: object
   api.TokenResponse:
     properties:
-      refreshToken:
+      refresh_token:
         description: 刷新令牌
         type: string
       token:
@@ -71,17 +39,14 @@ definitions:
       user:
         description: 用户信息
     type: object
-  dto.ChangePasswordReq:
+  dto.ForgotPasswordDTO:
     properties:
-      newPassword:
-        type: string
-      oldPassword:
+      email:
         type: string
     required:
-    - newPassword
-    - oldPassword
+    - email
     type: object
-  model.LoginDTO:
+  dto.LoginDTO:
     properties:
       password:
         description: 密码
@@ -95,7 +60,7 @@ definitions:
     - password
     - username
     type: object
-  model.RegisterDTO:
+  dto.RegisterDTO:
     properties:
       email:
         description: 邮箱
@@ -113,7 +78,7 @@ definitions:
         description: 电话
         example: "13800138000"
         type: string
-      roleIds:
+      role_ids:
         description: 角色ID列表
         items:
           type: integer
@@ -126,67 +91,35 @@ definitions:
     - password
     - username
     type: object
-  model.RoleDTO:
+  dto.ResetPasswordDTO:
+    properties:
+      new_password:
+        minLength: 6
+        type: string
+      token:
+        type: string
+    required:
+    - new_password
+    - token
+    type: object
+  dto.RoleDTO:
     properties:
       code:
-        type: string
-      createdAt:
-        type: string
-      description:
         type: string
       id:
         type: integer
       name:
         type: string
-      permissionIds:
-        items:
-          type: integer
-        type: array
-      sort:
-        type: integer
-      status:
-        type: integer
-      tenantId:
-        type: integer
-      updatedAt:
-        type: string
     type: object
-  model.UpdateUserDTO:
+  dto.UserResponseDTO:
     properties:
       avatar:
         description: 头像
         type: string
-      email:
-        description: 邮箱
-        example: admin@example.com
-        type: string
-      nickname:
-        description: 昵称
-        example: 管理员
-        type: string
-      phone:
-        description: 电话
-        example: "13800138000"
-        type: string
-      roleIds:
-        description: 角色ID列表
-        items:
-          type: integer
-        type: array
-      status:
-        description: 状态
-        example: 1
-        type: integer
-    type: object
-  model.UserDTO:
-    properties:
-      avatar:
-        description: 头像
-        type: string
-      createdAt:
+      created_at:
         description: 创建时间
         type: string
-      deptId:
+      dept_id:
         description: 部门ID
         type: integer
       email:
@@ -195,28 +128,47 @@ definitions:
       id:
         description: 用户ID
         type: integer
+      last_login_at:
+        description: 最后登录时间
+        type: string
       nickname:
         description: 昵称
         type: string
+      permissions:
+        description: 权限列表
+        items:
+          type: string
+        type: array
       phone:
         description: 电话
         type: string
       roles:
         description: 角色列表
         items:
-          $ref: '#/definitions/model.RoleDTO'
+          $ref: '#/definitions/dto.RoleDTO'
         type: array
       status:
         description: 状态
         type: integer
-      tenantId:
+      tenant_id:
         description: 租户ID
         type: integer
-      updatedAt:
+      updated_at:
         description: 更新时间
         type: string
       username:
         description: 用户名
+        type: string
+    type: object
+  response.Response:
+    properties:
+      code:
+        description: 业务代码
+        type: integer
+      data:
+        description: 数据
+      message:
+        description: 消息
         type: string
     type: object
 host: localhost:8080
@@ -244,7 +196,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/api.LoginRequest'
+          $ref: '#/definitions/dto.LoginDTO'
       produces:
       - application/json
       responses:
@@ -255,7 +207,7 @@ paths:
             - $ref: '#/definitions/api.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/api.LoginResponse'
+                  $ref: '#/definitions/api.TokenResponse'
               type: object
         "400":
           description: 参数错误
@@ -267,7 +219,7 @@ paths:
             $ref: '#/definitions/api.Response'
       summary: 用户登录
       tags:
-      - 用户管理
+      - 认证管理
   /api/auth/refresh:
     post:
       consumes:
@@ -314,7 +266,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/model.RegisterDTO'
+          $ref: '#/definitions/dto.RegisterDTO'
       produces:
       - application/json
       responses:
@@ -325,7 +277,7 @@ paths:
             - $ref: '#/definitions/api.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/model.UserDTO'
+                  $ref: '#/definitions/dto.UserResponseDTO'
               type: object
         "400":
           description: 参数错误
@@ -334,191 +286,110 @@ paths:
       summary: 用户注册
       tags:
       - 认证管理
-  /api/user/info:
-    get:
+  /api/v1/password/forgot:
+    post:
       consumes:
       - application/json
-      description: 获取当前登录用户的详细信息
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 用户信息
-          schema:
-            allOf:
-            - $ref: '#/definitions/api.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/model.UserDTO'
-              type: object
-        "401":
-          description: 未授权
-          schema:
-            $ref: '#/definitions/api.Response'
-      security:
-      - Bearer: []
-      summary: 获取当前用户信息
-      tags:
-      - 用户管理
-    put:
-      consumes:
-      - application/json
-      description: 更新当前登录用户的信息
+      description: 通过邮箱请求密码重置
       parameters:
-      - description: 用户信息
+      - description: 忘记密码请求
         in: body
-        name: data
+        name: request
         required: true
         schema:
-          $ref: '#/definitions/model.UpdateUserDTO'
+          $ref: '#/definitions/dto.ForgotPasswordDTO'
       produces:
       - application/json
       responses:
         "200":
-          description: 更新后的用户信息
+          description: 成功
           schema:
             allOf:
-            - $ref: '#/definitions/api.Response'
+            - $ref: '#/definitions/response.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/model.UserDTO'
+                  type: boolean
               type: object
         "400":
-          description: 参数错误
+          description: 请求参数错误
           schema:
-            $ref: '#/definitions/api.Response'
-        "401":
-          description: 未授权
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 内部服务器错误
           schema:
-            $ref: '#/definitions/api.Response'
-      security:
-      - Bearer: []
-      summary: 更新用户信息
+            $ref: '#/definitions/response.Response'
+      summary: 请求密码重置
       tags:
-      - 用户管理
-  /api/user/password:
-    put:
+      - 密码
+  /api/v1/password/reset:
+    post:
       consumes:
       - application/json
-      description: 修改当前登录用户的密码
+      description: 使用令牌重置密码
       parameters:
-      - description: 密码信息
+      - description: 重置密码请求
         in: body
-        name: data
+        name: request
         required: true
         schema:
-          $ref: '#/definitions/dto.ChangePasswordReq'
+          $ref: '#/definitions/dto.ResetPasswordDTO'
       produces:
       - application/json
       responses:
         "200":
-          description: 密码修改成功
-          schema:
-            $ref: '#/definitions/api.Response'
-        "400":
-          description: 参数错误
-          schema:
-            $ref: '#/definitions/api.Response'
-        "401":
-          description: 未授权
-          schema:
-            $ref: '#/definitions/api.Response'
-      security:
-      - Bearer: []
-      summary: 修改密码
-      tags:
-      - 用户管理
-  /api/users:
-    get:
-      consumes:
-      - application/json
-      description: 分页获取用户列表
-      parameters:
-      - default: 1
-        description: 页码
-        in: query
-        name: page
-        type: integer
-      - default: 10
-        description: 每页数量
-        in: query
-        name: pageSize
-        type: integer
-      - description: 用户名
-        in: query
-        name: username
-        type: string
-      - description: 昵称
-        in: query
-        name: nickname
-        type: string
-      - description: 状态
-        in: query
-        name: status
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 用户列表
+          description: 成功
           schema:
             allOf:
-            - $ref: '#/definitions/api.Response'
+            - $ref: '#/definitions/response.Response'
             - properties:
                 data:
-                  items:
-                    $ref: '#/definitions/model.UserDTO'
-                  type: array
+                  type: boolean
               type: object
-        "401":
-          description: 未授权
+        "400":
+          description: 请求参数错误
           schema:
-            $ref: '#/definitions/api.Response'
-      security:
-      - Bearer: []
-      summary: 获取用户列表
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 内部服务器错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 重置密码
       tags:
-      - 用户管理
-  /api/users/{id}:
+      - 密码
+  /api/v1/password/validate-token:
     get:
       consumes:
       - application/json
-      description: 根据用户ID获取用户详细信息
+      description: 验证密码重置令牌是否有效
       parameters:
-      - description: 用户ID
-        in: path
-        name: id
+      - description: 重置令牌
+        in: query
+        name: token
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
         "200":
-          description: 用户信息
+          description: 成功
           schema:
             allOf:
-            - $ref: '#/definitions/api.Response'
+            - $ref: '#/definitions/response.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/model.UserDTO'
+                  type: boolean
               type: object
         "400":
-          description: 参数错误
+          description: 请求参数错误
           schema:
-            $ref: '#/definitions/api.Response'
-        "401":
-          description: 未授权
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 内部服务器错误
           schema:
-            $ref: '#/definitions/api.Response'
-        "404":
-          description: 用户不存在
-          schema:
-            $ref: '#/definitions/api.Response'
-      security:
-      - Bearer: []
-      summary: 根据ID获取用户信息
+            $ref: '#/definitions/response.Response'
+      summary: 验证重置令牌
       tags:
-      - 用户管理
+      - 密码
   /health:
     get:
       consumes:

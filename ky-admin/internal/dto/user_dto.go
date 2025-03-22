@@ -106,3 +106,32 @@ type RoleDTO struct {
 	Name string `json:"name"`
 	Code string `json:"code"`
 }
+
+// ForgotPasswordDTO 忘记密码DTO
+type ForgotPasswordDTO struct {
+	Email string `json:"email" form:"email" binding:"required,email"`
+}
+
+// ResetPasswordDTO 重置密码DTO
+type ResetPasswordDTO struct {
+	Token       string `json:"token" form:"token" binding:"required"`
+	NewPassword string `json:"new_password" form:"new_password" binding:"required,min=6"`
+}
+
+// UserResponseDTO 用户响应数据传输对象
+type UserResponseDTO struct {
+	ID          uint       `json:"id"`                    // 用户ID
+	Username    string     `json:"username"`              // 用户名
+	Nickname    string     `json:"nickname"`              // 昵称
+	Email       string     `json:"email"`                 // 邮箱
+	Phone       string     `json:"phone"`                 // 电话
+	Avatar      string     `json:"avatar"`                // 头像
+	Status      int8       `json:"status"`                // 状态
+	TenantID    uint       `json:"tenant_id"`             // 租户ID
+	DeptID      uint       `json:"dept_id"`               // 部门ID
+	LastLoginAt *time.Time `json:"last_login_at"`         // 最后登录时间
+	CreatedAt   time.Time  `json:"created_at"`            // 创建时间
+	UpdatedAt   time.Time  `json:"updated_at"`            // 更新时间
+	Roles       []RoleDTO  `json:"roles,omitempty"`       // 角色列表
+	Permissions []string   `json:"permissions,omitempty"` // 权限列表
+}
